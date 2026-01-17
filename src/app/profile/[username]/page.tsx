@@ -12,35 +12,39 @@ export default function ProfilePage() {
     const { users, currentUser, photos, followUser, following, saved, updateProfile } = useStore();
     const [profileUser, setProfileUser] = useState<User | undefined>(undefined);
 
-    useEffect(() => {
-        const found = users.find(u => u.username === username);
-        // Fallback for demo user if not in store but in store initializer (it was added to store so should be fine)
-        if (found) {
-            setProfileUser(found);
-        } else if (username === 'demo_user') {
-            // Hotfix if seed didn't run properly before navigation or race condition
-        }
-    }, [users, username]);
-
-    if (!profileUser) {
-         return <div className="p-10 text-center">User not found</div>;
-    }
-
     const [activeTab, setActiveTab] = useState<'created' | 'saved'>('created');
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState('');
     const [editBio, setEditBio] = useState('');
 
+    useEffect(() => {
+        const found = users.find(u => u.username === username);
+        if (found) {
+            setProfileUser(found);
+        }
+    }, [users, username]);
+
+    useEffect(() => {
+        if (profileUser) {
+            setEditName(profileUser.name);
+            setEditBio(profileUser.bio || '');
+        }
+    }, [profileUser]);
+
+    if (!profileUser) {
+         return <div className="p-10 text-center">User not found</div>;
+    }
+
     // Derived state
-    const createdPhotos = photos.filter(p => p.userId === profileUser?.id);
+    const createdPhotos = photos.filter(p => p.userId === profileUser.id);
 
     // Saved photos logic using `saved` store
-    const savedPhotoIds = profileUser ? (saved[profileUser.id] || []) : [];
+    const savedPhotoIds = saved[profileUser.id] || [];
     const savedPhotosList = photos.filter(p => savedPhotoIds.includes(p.id));
 
     const photosToDisplay = activeTab === 'created' ? createdPhotos : savedPhotosList;
 
-    const followersCount = users.filter(u => following[u.id]?.includes(profileUser!.id)).length;
+    const followersCount = users.filter(u => following[u.id]?.includes(profileUser.id)).length;
 
     const handleShare = () => {
         navigator.clipboard.writeText(window.location.href);
