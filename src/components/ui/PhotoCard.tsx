@@ -12,7 +12,7 @@ interface PhotoCardProps {
 }
 
 export function PhotoCard({ photo }: PhotoCardProps) {
-    const { isLiked, likePhoto } = useStore();
+    const { isLiked, likePhoto, isSaved, savePhoto } = useStore();
     const liked = isLiked(photo.id);
     const [isHovered, setIsHovered] = useState(false);
 
@@ -52,8 +52,19 @@ export function PhotoCard({ photo }: PhotoCardProps) {
                         <span className="text-white text-xs font-bold drop-shadow-md truncate max-w-[70%]">
                             {photo.title}
                         </span>
-                        <button className="bg-red-600 text-white rounded-full px-3 py-1 text-xs font-bold hover:bg-red-700 transition-colors">
-                            Save
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                savePhoto(photo.id);
+                            }}
+                            className={cn(
+                                "rounded-full px-3 py-1 text-xs font-bold transition-colors",
+                                isSaved(photo.id)
+                                    ? "bg-black text-white hover:bg-gray-800"
+                                    : "bg-red-600 text-white hover:bg-red-700"
+                            )}>
+                            {isSaved(photo.id) ? 'Saved' : 'Save'}
                         </button>
                     </div>
 

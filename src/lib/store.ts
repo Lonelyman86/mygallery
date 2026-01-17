@@ -10,6 +10,7 @@ interface AppState {
   comments: Comment[]; // From DB
   likedPhotoIds: Record<string, string[]>; // photoId -> userId[]
   following: Record<string, string[]>; // userId -> followingUserId[]
+  saved: Record<string, string[]>; // userId -> photoId[]
 
   // Status
   loading: boolean;
@@ -34,6 +35,11 @@ interface AppState {
   addComment: (photoId: string, text: string) => Promise<void>;
   isLiked: (photoId: string) => boolean;
   followUser: (targetUserId: string) => Promise<void>;
+
+  // New Actions
+  savePhoto: (photoId: string) => Promise<void>;
+  isSaved: (photoId: string) => boolean;
+  updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -44,6 +50,7 @@ export const useStore = create<AppState>((set, get) => ({
   comments: [],
   likedPhotoIds: {},
   following: {},
+  saved: {},
   loading: false,
   error: null,
 
@@ -118,6 +125,8 @@ export const useStore = create<AppState>((set, get) => ({
               users: fetchedUsers,
               comments: data.comments || [],
               likedPhotoIds: data.likes || {},
+              following: data.following || {},
+              saved: data.saved || {},
               loading: false
           });
       } catch (err) {
@@ -164,16 +173,32 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   likePhoto: async (photoId) => {
-      // Simplification: In a real "no-db" app, real-time writes are hard.
-      // We will skip implementing persistent likes for "Github DB" mode
-      // because waiting 2 mins for a "Like" to register is bad UX.
-      // We will keep Likes in LocalStorage for "Personal Likes".
-      console.log("Likes are local-only in this demo mode");
+      const { currentUser, likedPhotoIds } = get();
+      if (!currentUser) return;
+
+      // Optimistic
+      const currentLikes = likedPhotoIds[photoId] || [];
+      const hasLiked = currentLikes.includes(currentUser.id);
+
+      const newLikes = hasLiked
+        ? currentLikes.filter(id => id !== currentUser.id)
+        : [...currentLikes, currentUser.id];
+
+      set(state => ({
+        likedPhotoIds: { ...state.likedPhotoIds, [photoId]: newLikes }
+      }));
+
+      // API
+      await fetch('/api/action', {
+          method: 'POST',
+          body: JSON.stringify({
+              action: 'like',
+              payload: { photoId, userId: currentUser.id }
+          })
+      });
   },
 
   addComment: async (photoId, text) => {
-      // Same for comments - 2 min delay is bad.
-      // We can persist them to GitHub DB so they eventually appear for everyone.
        const { currentUser } = get();
        if (!currentUser) return;
 
@@ -188,10 +213,13 @@ export const useStore = create<AppState>((set, get) => ({
        // Optimistic
        set(state => ({ comments: [...state.comments, newComment as Comment] }));
 
-       // Sync to GitHub
-       await fetch('/api/comment', {
+       // Generic API
+       await fetch('/api/action', {
            method: 'POST',
-           body: JSON.stringify(newComment)
+           body: JSON.stringify({
+               action: 'comment',
+               payload: newComment
+           })
        });
   },
 
@@ -204,22 +232,80 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   followUser: async (targetUserId) => {
-      // Stub for Github Mode.
-      // Real implementation would commit to a `relationships.json` or similar.
-      // For now, local optimistic update.
-      const { currentUser, following } = get();
+       const { currentUser, following } = get();
+       if (!currentUser) return;
+
+       const myFollowing = following[currentUser.id] || [];
+       const isFollowing = myFollowing.includes(targetUserId);
+
+       const newFollowing = isFollowing
+         ? myFollowing.filter(id => id !== targetUserId)
+         : [...myFollowing, targetUserId];
+
+       set((state) => ({
+           following: { ...state.following, [currentUser.id]: newFollowing }
+       }));
+
+       await fetch('/api/action', {
+           method: 'POST',
+           body: JSON.stringify({
+               action: 'follow',
+               payload: { followerId: currentUser.id, targetId: targetUserId }
+           })
+       });
+  },
+
+  savePhoto: async (photoId) => {
+      const { currentUser, saved } = get();
       if (!currentUser) return;
 
-      const myFollowing = following[currentUser.id] || [];
-      const isFollowing = myFollowing.includes(targetUserId);
+      const mySaved = saved[currentUser.id] || [];
+      const isSaved = mySaved.includes(photoId);
 
-      const newFollowing = isFollowing
-        ? myFollowing.filter(id => id !== targetUserId)
-        : [...myFollowing, targetUserId];
+      const newSaved = isSaved
+        ? mySaved.filter(id => id !== photoId)
+        : [...mySaved, photoId];
 
-      set((state) => ({
-          following: { ...state.following, [currentUser.id]: newFollowing }
+      set(state => ({
+          saved: { ...state.saved, [currentUser.id]: newSaved }
       }));
+
+       await fetch('/api/action', {
+           method: 'POST',
+           body: JSON.stringify({
+               action: 'save',
+               payload: { userId: currentUser.id, photoId }
+           })
+       });
+  },
+
+  isSaved: (photoId) => {
+       const { currentUser, saved } = get();
+       if (!currentUser) return false;
+       return (saved[currentUser.id] || []).includes(photoId);
+  },
+
+  updateProfile: async (data) => {
+      const { currentUser, users } = get();
+      if (!currentUser) return;
+
+      const newUserData = { ...currentUser, ...data };
+
+      // Optimistic
+      set({ currentUser: newUserData });
+
+      // Update in users list too
+      set(state => ({
+          users: state.users.map(u => u.id === currentUser.id ? newUserData : u)
+      }));
+
+       await fetch('/api/action', {
+           method: 'POST',
+           body: JSON.stringify({
+               action: 'updateProfile',
+               payload: { userId: currentUser.id, data }
+           })
+       });
   }
 
 }));
