@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 export default function PinDetail() {
     const params = useParams();
     const id = params.id as string;
-    const { photos, users, currentUser, comments, addComment, isLiked, likePhoto } = useStore();
+    const { photos, users, currentUser, comments, addComment, isLiked, likePhoto, isSaved, savePhoto, following } = useStore();
     const [photo, setPhoto] = useState<Photo | undefined>(undefined);
     const [commentText, setCommentText] = useState('');
     const [pageMounted, setPageMounted] = useState(false);
@@ -31,7 +31,7 @@ export default function PinDetail() {
     const liked = isLiked(photo.id);
 
     // Dynamic Save & Followers
-    const { isSaved, savePhoto, following } = useStore();
+
     const savedPin = isSaved(photo.id);
     const followersCount = author ? users.filter(u => following[u.id]?.includes(author.id)).length : 0;
 
