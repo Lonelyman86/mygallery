@@ -30,9 +30,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}>
-        {/* Netlify Identity Widget Script */}
-        <Script src="https://identity.netlify.com/v1/netlify-identity-widget.js" strategy="beforeInteractive" />
-
         <StoreInitializer />
 
         <div className="min-h-screen bg-white">

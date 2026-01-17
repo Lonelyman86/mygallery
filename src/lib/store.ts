@@ -50,7 +50,11 @@ export const useStore = create<AppState>((set, get) => ({
   initAuth: () => {
     // init netlify identity
     if (typeof window !== 'undefined') {
-        netlifyIdentity.init();
+        // Hardcode API URL to bypass auto-detection issues
+        netlifyIdentity.init({
+            APIUrl: 'https://mygaleriku.netlify.app/.netlify/identity',
+            logo: false // optional
+        });
         const user = netlifyIdentity.currentUser();
         if (user) {
             set({
