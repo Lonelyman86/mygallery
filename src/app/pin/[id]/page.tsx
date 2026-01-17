@@ -30,6 +30,11 @@ export default function PinDetail() {
     const photoComments = comments.filter(c => c.photoId === photo.id);
     const liked = isLiked(photo.id);
 
+    // Dynamic Save & Followers
+    const { isSaved, savePhoto, following } = useStore();
+    const savedPin = isSaved(photo.id);
+    const followersCount = author ? users.filter(u => following[u.id]?.includes(author.id)).length : 0;
+
     // Related: same category (mocked) or random
     const relatedPhotos = photos.filter(p => p.id !== photo.id).slice(0, 8);
 
@@ -40,6 +45,11 @@ export default function PinDetail() {
 
         addComment(photo.id, commentText);
         setCommentText('');
+    };
+
+    const handleSave = () => {
+        if (!currentUser) return alert("Please login to save");
+        savePhoto(photo.id);
     };
 
     return (
@@ -61,8 +71,13 @@ export default function PinDetail() {
                             <button className="p-2 hover:bg-gray-100 rounded-full transition"><MoreHorizontal /></button>
                             <button className="p-2 hover:bg-gray-100 rounded-full transition"><Share2 /></button>
                         </div>
-                        <button className="bg-red-600 text-white px-6 py-3 rounded-full font-bold hover:bg-red-700 transition">
-                            Save
+                        <button
+                            onClick={handleSave}
+                            className={cn(
+                                "text-white px-6 py-3 rounded-full font-bold transition",
+                                savedPin ? "bg-black hover:bg-gray-800" : "bg-red-600 hover:bg-red-700"
+                            )}>
+                            {savedPin ? 'Saved' : 'Save'}
                         </button>
                     </div>
 
@@ -78,7 +93,7 @@ export default function PinDetail() {
                             </Link>
                             <div className="flex flex-col">
                                 <Link href={`/profile/${author.username}`} className="font-bold hover:underline">{author.name}</Link>
-                                <span className="text-xs text-gray-500">10 followers</span>
+                                <span className="text-xs text-gray-500">{followersCount} followers</span>
                             </div>
                         </div>
                     )}

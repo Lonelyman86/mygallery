@@ -59,7 +59,7 @@ export function PhotoCard({ photo }: PhotoCardProps) {
                                 savePhoto(photo.id);
                             }}
                             className={cn(
-                                "rounded-full px-3 py-1 text-xs font-bold transition-colors",
+                                "rounded-full px-3 py-1 text-xs font-bold transition-colors pointer-events-auto",
                                 isSaved(photo.id)
                                     ? "bg-black text-white hover:bg-gray-800"
                                     : "bg-red-600 text-white hover:bg-red-700"
