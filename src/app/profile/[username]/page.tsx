@@ -62,12 +62,7 @@ export default function ProfilePage() {
         }
     };
 
-    useEffect(() => {
-        if (profileUser) {
-            setEditName(profileUser.name);
-            setEditBio(profileUser.bio || '');
-        }
-    }, [profileUser]);
+
 
     const isMe = currentUser?.id === profileUser.id;
     const isFollowing = currentUser && following[currentUser.id]?.includes(profileUser.id);
