@@ -1,16 +1,25 @@
 {
-    "users": [],
-    "photos": [
-        {
-            "id": "seed-1",
-            "url": "https://images.unsplash.com/photo-1707343843437-caacff5cfa74?q=80&w=600&auto=format&fit=crop",
-            "title": "Mountain View",
-            "description": "A beautiful morning in the mountains.",
-            "userId": "system",
-            "createdAt": "2024-01-01T00:00:00Z",
-            "likes": 10
-        }
-    ],
-    "comments": [],
-    "likes": {}
+  "users": [],
+  "photos": [
+    {
+      "id": "photo-1768643055409-jpeg",
+      "url": "/uploads/photo-1768643055409.jpeg",
+      "title": "Futaba Rio",
+      "description": "My Bini",
+      "userId": "d84df685-efbc-4d0e-9b5e-3e7be801533f",
+      "createdAt": "2026-01-17T09:44:15.979Z",
+      "likes": 0
+    },
+    {
+      "id": "seed-1",
+      "url": "https://images.unsplash.com/photo-1707343843437-caacff5cfa74?q=80&w=600&auto=format&fit=crop",
+      "title": "Mountain View",
+      "description": "A beautiful morning in the mountains.",
+      "userId": "system",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "likes": 10
+    }
+  ],
+  "comments": [],
+  "likes": {}
 }
