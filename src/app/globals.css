@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+@theme {
+  --color-foreground-rgb: 0, 0, 0;
+  --color-background-start-rgb: 255, 255, 255;
+  --color-background-end-rgb: 255, 255, 255;
+
+  /* Extend theme if needed */
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+}
+
+/* --- Global / Shared --- */
+/* PC Layout (Default) */
+.sidenav {
+    width: 80px;
+    z-index: 1030;
+    @apply fixed left-0 top-0 h-full bg-white border-r border-gray-200 hidden lg:flex flex-col items-center py-6;
+}
+
+.main-content {
+    @apply ml-0 lg:ml-20 transition-all duration-300 min-h-screen pb-20 lg:pb-0 pt-4 px-4;
+}
+
+/* Mobile Layout */
+@media (max-width: 1024px) {
+    .sidenav {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        margin-bottom: 70px; /* Space for bottom nav */
+    }
+}
+
+.detail-foto {
+    @apply w-full h-auto rounded-3xl;
+}
+
+/* --- Photos Index --- */
+.masonry {
+    column-count: 2;
+    column-gap: 16px;
+    padding: 8px 0 64px;
+}
+
+@media (min-width: 640px) {
+    .masonry { column-count: 3; }
+}
+@media (min-width: 1024px) {
+    .masonry { column-count: 4; }
+}
+@media (min-width: 1280px) {
+    .masonry { column-count: 5; }
+}
+
+.pin {
+    @apply inline-block w-full mb-4 break-inside-avoid relative rounded-2xl overflow-hidden bg-gray-100 shadow-sm transition-transform duration-200;
+}
+
+.pin:hover {
+    transform: translateY(-2px);
+}
+
+.pin img {
+    @apply w-full block object-cover;
+}
+
+.pin-overlay {
+    @apply absolute inset-0 flex flex-col justify-between p-3 opacity-0 hover:opacity-100 transition-opacity duration-200 bg-black/40 pointer-events-none;
+}
+
+.pin-actions {
+    @apply flex gap-2 justify-end pointer-events-auto;
+}
+
+.btn-primary {
+    @apply bg-red-600 text-white rounded-full px-4 py-2 font-bold hover:bg-red-700 transition-colors;
+}
+
+.btn-ghost {
+    @apply bg-white/90 text-black rounded-full p-2 font-bold hover:bg-white transition-colors;
+}
+
+/* Loader */
+.loader {
+    border: 3px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 3px solid #3498db;
+    width: 20px;
+    height: 20px;
+    -webkit-animation: spin 1s linear infinite; /* Safari */
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

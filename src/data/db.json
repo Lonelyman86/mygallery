@@ -1,0 +1,16 @@
+{
+    "users": [],
+    "photos": [
+        {
+            "id": "seed-1",
+            "url": "https://images.unsplash.com/photo-1707343843437-caacff5cfa74?q=80&w=600&auto=format&fit=crop",
+            "title": "Mountain View",
+            "description": "A beautiful morning in the mountains.",
+            "userId": "system",
+            "createdAt": "2024-01-01T00:00:00Z",
+            "likes": 10
+        }
+    ],
+    "comments": [],
+    "likes": {}
+}
