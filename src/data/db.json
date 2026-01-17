@@ -20,7 +20,15 @@
       "likes": 10
     }
   ],
-  "comments": [],
+  "comments": [
+    {
+      "id": "cmt-1768646347078",
+      "photoId": "photo-1768643055409-jpeg",
+      "userId": "77d7b0e4-a769-497f-8e90-378d7f38bc06",
+      "text": "hello",
+      "createdAt": "2026-01-17T10:39:07.078Z"
+    }
+  ],
   "likes": {
     "photo-1768643055409-jpeg": []
   }
