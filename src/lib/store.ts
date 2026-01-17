@@ -55,29 +55,33 @@ export const useStore = create<AppState>((set, get) => ({
             APIUrl: 'https://mygaleriku.netlify.app/.netlify/identity',
             logo: false // optional
         });
+        const updateCurrentUser = (user: any) => {
+             const mappedUser = {
+                id: user.id,
+                email: user.email,
+                name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+                username: user.email?.split('@')[0] || 'user',
+                avatar: user.user_metadata?.avatar_url || ''
+            };
+            set({ currentUser: mappedUser });
+
+            // Also add to users list immediately
+            set((state) => {
+                const exists = state.users.find(u => u.id === mappedUser.id);
+                if (!exists) {
+                    return { users: [...state.users, mappedUser] };
+                }
+                return {};
+            });
+        };
+
         const user = netlifyIdentity.currentUser();
         if (user) {
-            set({
-                currentUser: {
-                    id: user.id,
-                    email: user.email,
-                    name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-                    username: user.email?.split('@')[0] || 'user',
-                    avatar: user.user_metadata?.avatar_url || ''
-                }
-            });
+            updateCurrentUser(user);
         }
 
         netlifyIdentity.on('login', (user: any) => {
-             set({
-                currentUser: {
-                    id: user.id,
-                    email: user.email,
-                    name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-                    username: user.email?.split('@')[0] || 'user',
-                    avatar: user.user_metadata?.avatar_url || ''
-                }
-            });
+            updateCurrentUser(user);
             netlifyIdentity.close();
         });
 
@@ -98,9 +102,20 @@ export const useStore = create<AppState>((set, get) => ({
           if (!res.ok) throw new Error("Failed to fetch data");
           const data = await res.json();
           // Merge data
+          let fetchedUsers = data.users || [];
+
+          // Ensure current user is in the list (for Profile page to work)
+          const { currentUser } = get();
+          if (currentUser) {
+              const exists = fetchedUsers.find((u: User) => u.id === currentUser.id);
+              if (!exists) {
+                  fetchedUsers = [...fetchedUsers, currentUser];
+              }
+          }
+
           set({
               photos: data.photos || [],
-              users: data.users || [], // We might merge active user here?
+              users: fetchedUsers,
               comments: data.comments || [],
               likedPhotoIds: data.likes || {},
               loading: false
